@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"module": "none",
+		"target": "es6",
+		"noImplicitAny": true,
+		"removeComments": false,
+		"preserveConstEnums": true,
+		"outDir": "out",
+		"rootDir": ".",
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"strict": true,
+		"strictNullChecks": false,
+		"declaration": true
+	},
+	"include": [
+		"Nitro.ts"
+	],
+	"exclude": [
+	],
+	"lib": ["dom", "es2015"]
+}

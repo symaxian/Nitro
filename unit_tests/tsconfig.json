@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"module": "none",
+		"target": "es6",
+		"noImplicitAny": true,
+		"removeComments": false,
+		"preserveConstEnums": true,
+		"outDir": "../out",
+		"rootDir": ".",
+		"jsx": "react",
+		"jsxFactory": "_.create",
+		"inlineSourceMap": true,
+		"inlineSources": true,
+		"strict": true,
+		"strictNullChecks": false
+	},
+	"include": [
+		"../out/Nitro.d.ts",
+		"jasmine.d.ts",
+		"NitroSpec.tsx"
+	],
+	"exclude": [
+	],
+	"lib": ["dom", "es2015"]
+}
