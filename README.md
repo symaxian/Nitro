@@ -273,8 +273,8 @@ button.mountUnder(document.body);
 
 
 
-## Who needs JSX and cleanly typed single input values, I'll go make my own state management methods!
-- This component is an example of what cuts can be made to sacrifice cleanliness in favor of performance when performance is critical.
+## Who needs JSX and cleanly typed input objects, I'll go make my own state management methods!
+- If desired, components can completely ignore the input system and require the parent component/code to invoke methods on the component class to modify state.
 ```TSX
 class CustomSpanWithBackground extends Nitro.Component {
 
@@ -332,3 +332,5 @@ TODO:
 - Should Component.mount() and Component.mountUnder() be moved to the Nitro namespace? Can we move/remove the mountedState field to trim down the Component class?
 - Is there a better name than "dirtied" and "setDirty()"?
 - Should we re-render components that are dirtied but not mounted?
+- Should Renderer.create(Component) return the instance of the Component instead of the component's element? Would make it easier to store child components as fields rather than using something like this.childByKey()
+- Should we split a "ref" property out of key and add this.childByRef() to reduce "key"'s responsibilities? We could add something like this.childrenByRef() to collect multiple children.
