@@ -111,6 +111,28 @@ describe('Nitro', () => {
 		component.unmount();
 	});
 
+	it ('Can go from string input to null input through the Renderer', () => {
+
+		class Message extends Nitro.Component<string | null> {
+			render(_: Nitro.Renderer) {
+				const message = (this.input === null) ? 'No message' : this.input;
+				return <span>{message}</span>;
+			}
+		}
+
+		class OuterComponent extends Nitro.Component<string | null> {
+			render(_: Nitro.Renderer) {
+				return _.create(Message, this.input);
+			}
+		}
+
+		const comp = new OuterComponent();
+		comp.setInput('Hello World!');
+		expect(comp.getElement().textContent).toBe('Hello World!');
+		comp.setInput(null);
+		expect(comp.getElement().textContent).toBe('No message');
+	});
+
 	describe('Can clear state between render calls', () => {
 
 		describe('Can clear leftover styles', () => {
@@ -574,22 +596,6 @@ describe('Nitro', () => {
 		comp.unmount();
 	});
 
-	it('Can create pure component with scalar input', () => {
-
-		class PureComp extends Nitro.PureComponent<string> {
-			render(_: Nitro.Renderer) {
-				return <span>{this.input}</span>;
-			}
-		}
-
-		const comp = new PureComp();
-		comp.setInput('1');
-		comp.mountUnder(document.body);
-
-		comp.unmount();
-
-	});
-
 	it('Will reuse elements', () => {
 
 		let wasRemoved = false;
@@ -725,6 +731,58 @@ describe('Nitro', () => {
 			comp.getElement();
 		}).toThrow(new Error('Cannot reuse key for a component of a different class, current: Comp2, new: Comp1.'));
 
+	});
+
+	it('Will throw an error an invalid child is given', () => {
+
+		class DivWrapper extends Nitro.Component<any> {
+			render(_?: Nitro.Renderer): void | HTMLElement {
+				return _.create('div', null, this.input);
+			}
+		}
+
+		const comp = new DivWrapper();
+
+		comp.setInput(true);
+		expect(() => comp.getElement()).toThrow(new Error('Cannot treat value as child: true, must be a string, HTMLElement, Component, or null.'));
+
+		comp.setInput({});
+		expect(() => comp.getElement()).toThrow(new Error('Cannot treat value as child: [object Object], must be a string, HTMLElement, Component, or null.'));
+
+		comp.setInput(9001);
+		expect(() => comp.getElement()).toThrow(new Error('Cannot treat value as child: 9001, must be a string, HTMLElement, Component, or null.'));
+	});
+
+	it('Will throw an error if attempting to give a pure component a non-object input', () => {
+
+		class PureComp extends Nitro.PureComponent<boolean> {
+			render(_?: Nitro.Renderer): void | HTMLElement {
+				return <div/>
+			}
+		}
+
+		const comp = new PureComp();
+		expect(() => comp.setInput(false)).toThrow(new Error('Non-object input value given to instance of PureComponent, this will produce undesired behavior.'));
+	});
+
+	it('Will throw an error if attempting to swap out the root element', () => {
+
+		class ComponentWithThatWillTryToSwapRootElement extends Nitro.Component<boolean> {
+			render(_?: Nitro.Renderer): void | HTMLElement {
+				if (this.input) {
+					return <span/>
+				}
+				return <div/>
+			}
+		}
+
+		const comp = new ComponentWithThatWillTryToSwapRootElement();
+
+		comp.setInput(false);
+		expect(comp.getElement().tagName).toBe('DIV');
+
+		comp.setInput(true);
+		expect(() => comp.getElement()).toThrow(new Error('Nitro does not support swapping out the root element of a component! Component: ComponentWithThatWillTryToSwapRootElement. You may need to add a key to the root element of the component.'));
 	});
 
 });

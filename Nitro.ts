@@ -113,8 +113,10 @@ namespace Nitro {
 
 		setInput(input: I) {
 			const previous = this.input;
-			this.input = input;
-			this.inputChanged(previous, input);
+			if (previous !== null || input !== null) { // A special case, don't bother invoking inputChanged() if going from null to null
+				this.input = input;
+				this.inputChanged(previous, input);
+			}
 			this.setDirty();
 		}
 
@@ -159,15 +161,15 @@ namespace Nitro {
 
 		private rerender() {
 			let rendered: HTMLElement;
-			const pool = this._renderer;
+			const renderer = this._renderer;
 			try {
-				if (pool === null) {
+				if (renderer === null) {
 					rendered = this.render() as HTMLElement;
 				}
 				else {
-					pool.setupForNewRenderPass();
-					rendered = this.render(pool) as HTMLElement;
-					// pool.clearLeftoverState();
+					renderer.setupForNewRenderPass();
+					rendered = this.render(renderer) as HTMLElement;
+					// renderer.clearLeftoverState();
 				}
 			}
 			catch(e) {
@@ -215,6 +217,7 @@ namespace Nitro {
 	export abstract class PureComponent<I = {}> extends Component<I> {
 
 		setInput(input: I) {
+			if (Nitro.DEBUG_MODE && typeof input !== 'object') throw new Error('Non-object input value given to instance of PureComponent, this will produce undesired behavior.');
 			const previous = this.input;
 			let didChange = false;
 			if (previous === null) {
@@ -302,9 +305,9 @@ namespace Nitro {
 		private elements: CustomHTMLElement[] = [];
 		private previousElements: CustomHTMLElement[] = [];
 
-		create(tagName: string, attributes: any, ...children: (HTMLElement | Nitro.Component)[]): HTMLElement;
+		create(tagName: string, attributes: any, ...children: (string | HTMLElement | Nitro.Component | null)[]): HTMLElement;
 		create<C extends Component<P>, P extends {}>(componentClass: new () => Component<P>, input?: P | null): HTMLElement;
-		create(tagNameOrComponentClass: any, inputOrProperties: any, ...children: (string | HTMLElement | Nitro.Component)[]): HTMLElement {
+		create(tagNameOrComponentClass: any, inputOrProperties: any, ...children: (string | HTMLElement | Nitro.Component | null)[]): HTMLElement {
 
 			const key = (inputOrProperties === null || inputOrProperties.key === undefined) ? null : inputOrProperties.key;
 
@@ -360,22 +363,20 @@ namespace Nitro {
 
 				const newChildren: Node[] = [];
 
-				if (children.length > 0) {
-					for (const child of children) {
+				for (const child of children) {
+					if (child !== null) {
 						let childElem;
-						if (child !== null) {
-							if (typeof child === 'string') {
-								newChildren.push(document.createTextNode(child));
-							}
-							else if (child instanceof HTMLElement) {
-								childElem = child;
-								newChildren.push(childElem);
-							}
-							else {
-								childElem = child.getElement();
-								newChildren.push(childElem);
-							}
+						if (typeof child === 'string') {
+							childElem = document.createTextNode(child);
 						}
+						else if (child instanceof HTMLElement) {
+							childElem = child;
+						}
+						else {
+							if (Nitro.DEBUG_MODE && !(child instanceof Nitro.Component)) throw new Error('Cannot treat value as child: ' + child + ', must be a string, HTMLElement, Component, or null.');
+							childElem = child.getElement();
+						}
+						newChildren.push(childElem);
 					}
 				}
 
@@ -422,9 +423,7 @@ namespace Nitro {
 				component = new tagNameOrComponentClass();
 			}
 
-			if (inputOrProperties !== null) { // FIXME: What if it's going from a value to null?
-				component.setInput(inputOrProperties);
-			}
+			component.setInput(inputOrProperties);
 
 			component.key = key;
 
