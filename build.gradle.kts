@@ -1,3 +1,5 @@
+val VERSION = "v0.0.2"
+
 repositories {
 	mavenCentral()
 }
@@ -61,11 +63,26 @@ tasks.create<Exec>("compileUnitTests") {
 
 	workingDir("unit_tests")
 	commandLine("cmd", "/c", "tsc")
+}
 
+fun writeVersionHeader(filename: String) {
+	val file = file("out/$filename")
+	val contents = file.readText()
+	file.writeText("// $filename - $VERSION\n$contents")
+}
+
+tasks.create("addVersionCommentToBuiltFiles") {
+	dependsOn("compileNitroJS")
+	outputs.upToDateWhen { false }
+	doLast {
+		writeVersionHeader("Nitro.js")
+		writeVersionHeader("Nitro.min.js")
+		writeVersionHeader("Nitro.d.ts")
+	}
 }
 
 tasks.create("build") {
-	dependsOn("compileNitroJS")
+	dependsOn("addVersionCommentToBuiltFiles")
 	dependsOn("compileUnitTests")
 }
 
