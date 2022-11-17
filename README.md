@@ -333,4 +333,5 @@ TODO:
 - Is there a better name than "dirtied" and "setDirty()"?
 - Should we re-render components that are dirtied but not mounted?
 - Should Renderer.create(Component) return the instance of the Component instead of the component's element? Would make it easier to store child components as fields rather than using something like this.childByKey()
-- Should we split a "ref" property out of key and add this.childByRef() to reduce "key"'s responsibilities? We could add something like this.childrenByRef() to collect multiple children.
+- Should we split a "ref" property out of key and add this.childByRef() to reduce "key"'s responsibilities? Something like this.childrenByRef() could be added to collect multiple children.
+- Support sending content to components.
