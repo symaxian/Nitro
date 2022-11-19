@@ -785,4 +785,127 @@ describe('Nitro', () => {
 		expect(() => comp.getElement()).toThrow(new Error('Nitro does not support swapping out the root element of a component! Component: ComponentWithThatWillTryToSwapRootElement. You may need to add a key to the root element of the component.'));
 	});
 
+	it('Will not fire lifecycle events when component is moved to a different element within same component', () => {
+
+		let mountedCount = 0;
+		let unmountedCount = 0;
+
+		class TestSpan extends Nitro.Component {
+			protected element = document.createElement('span');
+			wasMounted = () => mountedCount++;
+			wasUnmounted = () => unmountedCount++;
+			render() {}
+		}
+
+		class ComponentThatWillMoveChild extends Nitro.Component<boolean> {
+			render(_?: Nitro.Renderer): void | HTMLElement {
+				if (this.input) {
+					return <div key="root">
+						<div>
+							<TestSpan/>
+						</div>
+					</div>;
+				}
+				return <div key="root">
+					<TestSpan/>
+				</div>;
+			}
+		}
+
+		const comp = new ComponentThatWillMoveChild();
+		comp.setInput(false);
+
+		comp.mountUnder(document.body);
+
+		expect(mountedCount).toBe(1);
+		expect(unmountedCount).toBe(0);
+
+		comp.setInput(true);
+		Nitro.digest();
+
+		expect(mountedCount).toBe(1);
+		expect(unmountedCount).toBe(0);
+
+		comp.setInput(false);
+		Nitro.digest();
+
+		comp.unmount();
+		expect(mountedCount).toBe(1);
+		expect(unmountedCount).toBe(1);
+	});
+
+	it('Can send DIV child to component when input object is null', () => {
+
+		class BorderedContent extends Nitro.Component<{ children: HTMLElement | HTMLElement[] }> {
+			render(_: Nitro.Renderer): void | HTMLElement {
+				return <div style="border: 3px solid black">{this.input.children}</div>
+			}
+		}
+
+		class TestComponent extends Nitro.Component {
+			render(_: Nitro.Renderer): void | HTMLElement {
+				return <BorderedContent>
+					<div>Find me</div>
+				</BorderedContent>;
+			}
+		}
+
+		const testComponent = new TestComponent();
+
+		const div = testComponent.getElement() as HTMLElement;
+		expect(div.tagName).toBe('DIV');
+		expect(div.style.border).toBe('3px solid black');
+
+		expect(div.children[0].tagName).toBe('DIV');
+		expect(div.children[0].textContent).toBe('Find me');
+	});
+
+	it('Can send DIV child to component when input object is not null', () => {
+
+		class BorderedContent extends Nitro.Component<{ color: string, children: HTMLElement | HTMLElement[] }> {
+			render(_: Nitro.Renderer): void | HTMLElement {
+				return <div style={"border: 3px solid " + this.input.color}>{this.input.children}</div>
+			}
+		}
+
+		class TestComponent extends Nitro.Component {
+			render(_: Nitro.Renderer): void | HTMLElement {
+				return <BorderedContent color="blue">
+					<div>Find me</div>
+				</BorderedContent>;
+			}
+		}
+
+		const testComponent = new TestComponent();
+
+		const div = testComponent.getElement() as HTMLElement;
+		expect(div.tagName).toBe('DIV');
+		expect(div.style.border).toBe('3px solid blue');
+
+		expect(div.children[0].tagName).toBe('DIV');
+		expect(div.children[0].textContent).toBe('Find me');
+	});
+
+	it('Can send text child to component', () => {
+
+		class StyledSpan extends Nitro.Component<{ color: string, children: string }> {
+			render(_: Nitro.Renderer): void | HTMLElement {
+				return <span style={"color: " + this.input.color}>{this.input.children}</span>
+			}
+		}
+
+		class TestComponent extends Nitro.Component {
+			render(_: Nitro.Renderer): void | HTMLElement {
+				return <StyledSpan color="blue">Some text</StyledSpan>;
+			}
+		}
+
+		const testComponent = new TestComponent();
+
+		const div = testComponent.getElement() as HTMLElement;
+		expect(div.tagName).toBe('SPAN');
+		expect(div.style.color).toBe('blue');
+		expect(div.textContent).toBe('Some text');
+	});
+
 });

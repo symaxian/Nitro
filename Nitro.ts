@@ -270,7 +270,7 @@ namespace Nitro {
 		else if (name.startsWith('data-')) {
 			element.setAttribute(name, value);
 		}
-		else {
+		else if (name !== 'children') {
 			(element as any)[name] = value;
 		}
 	}
@@ -310,6 +310,15 @@ namespace Nitro {
 		create(tagNameOrComponentClass: any, inputOrProperties: any, ...children: (string | HTMLElement | Nitro.Component | null)[]): HTMLElement {
 
 			const key = (inputOrProperties === null || inputOrProperties.key === undefined) ? null : inputOrProperties.key;
+
+			if (children.length > 0) {
+				if (inputOrProperties === null) {
+					inputOrProperties = { children: children };
+				}
+				else {
+					inputOrProperties.children = children;
+				}
+			}
 
 			if (typeof tagNameOrComponentClass === 'string') {
 
@@ -363,6 +372,7 @@ namespace Nitro {
 
 				const newChildren: Node[] = [];
 
+				children = flatten(children); // TODO: Optimize
 				for (const child of children) {
 					if (child !== null) {
 						let childElem;
@@ -523,6 +533,20 @@ namespace Nitro {
 		}
 	}
 
+	function flatten<T extends any>(items: T[]) {
+		const flattened: T[] = [];
+		const length = items.length;
+		for (let i = 0; i < length; i++) {
+			const item = items[i];
+			if (Array.isArray(item)) {
+				flattened.push(...item);
+			} else {
+				flattened.push(item);
+			}
+		}
+		return flattened;
+	}
+
 	export function updateChildren(parent: HTMLElement, children: (HTMLElement | Nitro.Component)[]) {
 		const childElements = children.map(child => {
 			if (child instanceof Nitro.Component) {
@@ -561,6 +585,10 @@ namespace JSX {
 
 	export interface ElementAttributesProperty {
 		input: any; // THIS IS IMPORTANT BLACK MAGIC!!! Somehow TypeScript matches this up with the input type for the component class. I have no clue how.
+	}
+
+	export interface ElementChildrenAttribute {
+		children: any;
 	}
 
 	export type DOMCSSProperties = {
@@ -1162,6 +1190,7 @@ namespace JSX {
 		// Custom attributes, not sure why TypeScript didn't pick these up on the IntrinsicAttributes type
 		key?: string;
 		// ref?: string;
+		children?: any;
 		// Standard HTML Attributes
 		accept?: string;
 		acceptCharset?: string;
