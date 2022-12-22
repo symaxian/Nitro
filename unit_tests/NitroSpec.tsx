@@ -908,4 +908,25 @@ describe('Nitro', () => {
 		expect(div.textContent).toBe('Some text');
 	});
 
+	it('Can specify false as a child', () => {
+
+		class TestComponent extends Nitro.Component<string | false> {
+			render(_: Nitro.Renderer): void | HTMLElement {
+				return <div>{this.input}</div>;
+			}
+		}
+
+		const testComponent = new TestComponent();
+
+		testComponent.setInput('Test');
+		const elem = testComponent.getElement();
+		expect(elem.tagName).toBe('DIV');
+		expect(elem.textContent).toBe('Test');
+
+		testComponent.setInput(false);
+		const elem2 = testComponent.getElement();
+		expect(elem2.tagName).toBe('DIV');
+		expect(elem2.textContent).toBe('');
+	});
+
 });

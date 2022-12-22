@@ -305,9 +305,9 @@ namespace Nitro {
 		private elements: CustomHTMLElement[] = [];
 		private previousElements: CustomHTMLElement[] = [];
 
-		create(tagName: string, attributes: any, ...children: (string | HTMLElement | Nitro.Component | null)[]): HTMLElement;
+		create(tagName: string, attributes: any, ...children: (string | HTMLElement | Nitro.Component | null | false)[]): HTMLElement;
 		create<C extends Component<P>, P extends {}>(componentClass: new () => Component<P>, input?: P | null): HTMLElement;
-		create(tagNameOrComponentClass: any, inputOrProperties: any, ...children: (string | HTMLElement | Nitro.Component | null)[]): HTMLElement {
+		create(tagNameOrComponentClass: any, inputOrProperties: any, ...children: (string | HTMLElement | Nitro.Component | null | false)[]): HTMLElement {
 
 			const key = (inputOrProperties === null || inputOrProperties.key === undefined) ? null : inputOrProperties.key;
 
@@ -374,7 +374,7 @@ namespace Nitro {
 
 				children = flatten(children); // TODO: Optimize
 				for (const child of children) {
-					if (child !== null) {
+					if (child !== null && child !== false) {
 						let childElem;
 						if (typeof child === 'string') {
 							childElem = document.createTextNode(child);
@@ -383,7 +383,7 @@ namespace Nitro {
 							childElem = child;
 						}
 						else {
-							if (Nitro.DEBUG_MODE && !(child instanceof Nitro.Component)) throw new Error('Cannot treat value as child: ' + child + ', must be a string, HTMLElement, Component, or null.');
+							if (Nitro.DEBUG_MODE && !(child instanceof Nitro.Component)) throw new Error('Cannot treat value as child: ' + child + ', must be a string, HTMLElement, Component, null, or false.');
 							childElem = child.getElement();
 						}
 						newChildren.push(childElem);
