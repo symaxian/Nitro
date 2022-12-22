@@ -744,13 +744,13 @@ describe('Nitro', () => {
 		const comp = new DivWrapper();
 
 		comp.setInput(true);
-		expect(() => comp.getElement()).toThrow(new Error('Cannot treat value as child: true, must be a string, HTMLElement, Component, or null.'));
+		expect(() => comp.getElement()).toThrow(new Error('Cannot treat value as child: true, must be a string, HTMLElement, Component, null, or false.'));
 
 		comp.setInput({});
-		expect(() => comp.getElement()).toThrow(new Error('Cannot treat value as child: [object Object], must be a string, HTMLElement, Component, or null.'));
+		expect(() => comp.getElement()).toThrow(new Error('Cannot treat value as child: [object Object], must be a string, HTMLElement, Component, null, or false.'));
 
 		comp.setInput(9001);
-		expect(() => comp.getElement()).toThrow(new Error('Cannot treat value as child: 9001, must be a string, HTMLElement, Component, or null.'));
+		expect(() => comp.getElement()).toThrow(new Error('Cannot treat value as child: 9001, must be a string, HTMLElement, Component, null, or false.'));
 	});
 
 	it('Will throw an error if attempting to give a pure component a non-object input', () => {
