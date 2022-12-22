@@ -1,4 +1,4 @@
-val VERSION = "v0.0.2"
+val VERSION = "v0.0.3"
 
 repositories {
 	mavenCentral()
