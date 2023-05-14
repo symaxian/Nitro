@@ -58,7 +58,7 @@ mySpan.mountUnder(document.body);
 ## Giving our component some input
 In this example we deal with the `input` of a component. Components may take in input to modify their appearance or behavior.
 ```TypeScript
-class MyComponent2 extends Nitro.Component<string> { // To declare that our component takes input, we use a TypeScript template, this component just takes in input of type 'string'.
+class MyComponent2 extends Nitro.Component<string> { // To declare that our component takes input, we use a generic interface, this component just takes in input of type 'string'.
 
 	render() {
 		const mySpan = document.createElement('span');
