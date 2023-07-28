@@ -176,6 +176,9 @@ namespace Nitro {
 				removeDirtyComponent(this);
 				throw e;
 			}
+			if (Nitro.DEBUG_MODE && this.element === null && !(rendered instanceof HTMLElement)) {
+				throw new Error('Element for component ' + this.constructor.name + ' is not defined and render() did not return an instance of HTMLElement!');
+			}
 			if (rendered !== undefined) {
 				if (Nitro.DEBUG_MODE && this.element !== null && rendered !== this.element) {
 					removeDirtyComponent(this);
