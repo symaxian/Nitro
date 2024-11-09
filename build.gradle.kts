@@ -20,7 +20,7 @@ tasks.create<Exec>("compileNitroTS") {
 	inputs.file("build.gradle.kts")
 	inputs.files("Nitro.ts")
 
-	commandLine("cmd", "/c", "tsc")
+	commandLine("tsc")
 }
 
 tasks.create<Exec>("compileNitroJS") {
@@ -52,7 +52,7 @@ tasks.create<Exec>("compileNitroJS") {
 	commandLine(argList)
 
 	doLast {
-		println("nitro.min.js filesize: " + File("out/Nitro.min.js").length()/1000 + "kb")
+		println("nitro.min.js filesize: " + File("out/Nitro.min.js").length() + " bytes")
 //		println("classpath = ${configurations["nitroConfiguration"].map { file: File -> file.name }}")
 	}
 }
@@ -62,7 +62,7 @@ tasks.create<Exec>("compileUnitTests") {
 	inputs.files("unit_tests")
 
 	workingDir("unit_tests")
-	commandLine("cmd", "/c", "tsc")
+	commandLine("tsc")
 }
 
 fun writeVersionHeader(filename: String) {

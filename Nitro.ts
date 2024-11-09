@@ -377,7 +377,7 @@ namespace Nitro {
 
 				children = flatten(children); // TODO: Optimize
 				for (const child of children) {
-					if (child !== null && child !== false) {
+					if (child !== undefined && child !== null && child !== false) {
 						let childElem;
 						if (typeof child === 'string') {
 							childElem = document.createTextNode(child);
@@ -386,7 +386,7 @@ namespace Nitro {
 							childElem = child;
 						}
 						else {
-							if (Nitro.DEBUG_MODE && !(child instanceof Nitro.Component)) throw new Error('Cannot treat value as child: ' + child + ', must be a string, HTMLElement, Component, null, or false.');
+							if (Nitro.DEBUG_MODE && !(child instanceof Nitro.Component)) throw new Error('Cannot treat value as child: ' + child + '; must be one of: string, HTMLElement, Component, null, or false.');
 							childElem = child.getElement();
 						}
 						newChildren.push(childElem);

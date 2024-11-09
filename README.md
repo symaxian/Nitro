@@ -13,6 +13,7 @@ WARNING: Nitro is in early alpha and contains bugs.
 
 File listing:
 - README.md - This file
+- build.gradle.kts - Gradle build file, the `build` task will build all artifacts in the out folder(requires `tsc` to be installed globally), the `clean` task will delete the out folder.
 - Nitro.ts - The source for Nitro
 - tsconfig.json - The tsconfig file to compile Nitro(to out/Nitro.js)
 - externs.js - Externs file for advanced minification, currently unused as advanced compilation is not enabled
@@ -27,7 +28,7 @@ File listing:
 	- tsconfig.json - The tsconfig file to compile the unit tests(NitroSpec.tsx) into ../out/NitroSpec.js
 	- lib/ - Contains Jasmine
 
-To include use Nitro, simple include Nitro.js or Nitro.min.js, the "Nitro" namespace will then be accessible globally. Nitro is currently not modularized.
+To use Nitro, include the Nitro.js or Nitro.min.js file, the "Nitro" namespace will be attached to window and accessible globally. Nitro is currently not modularized.
 
 Let's jump right into some examples:
 
