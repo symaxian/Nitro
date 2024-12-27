@@ -2,7 +2,7 @@
 
 ![Nitro Logo](logo.png)
 
-Nitro is a lightweight component framework written in TypeScript that focuses on flexibility and performance. Within Nitro every component is a class that may declare and consume input and that represents a single root element(as well as its styling and children).
+Nitro is a lightweight component framework written in TypeScript that focuses on flexibility and performance. In Nitro, every component is a class that may declare and consume input, and which represents a single root element(as well as its styling and children).
 
 Nitro is:
 - Tiny
