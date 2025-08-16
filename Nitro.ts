@@ -373,20 +373,17 @@ namespace Nitro {
 					(elem as CustomHTMLElement).__attributes = inputOrProperties;
 				}
 
-				const newChildren: Node[] = [];
+				const newChildren: (Node|string)[] = [];
 
 				children = flatten(children); // TODO: Optimize
 				for (const child of children) {
-					if (child !== undefined && child !== null && child !== false) {
+					if (child !== undefined && child !== null && child !== false) { // Ignore undefined/null/false
 						let childElem;
-						if (typeof child === 'string') {
-							childElem = document.createTextNode(child);
-						}
-						else if (child instanceof HTMLElement) {
+						if (typeof child === 'string' || child instanceof HTMLElement) {
 							childElem = child;
 						}
 						else {
-							if (Nitro.DEBUG_MODE && !(child instanceof Nitro.Component)) throw new Error('Cannot treat value as child: ' + child + '; must be one of: string, HTMLElement, Component, null, or false.');
+							if (Nitro.DEBUG_MODE && !(child instanceof Nitro.Component)) throw new Error('Cannot treat value as child: ' + child + '; must be one of: string, HTMLElement, Component, undefined, null, or false.');
 							childElem = child.getElement();
 						}
 						newChildren.push(childElem);
@@ -468,7 +465,9 @@ namespace Nitro {
 
 	}
 
-	function updateElementChildren(parent: HTMLElement, children: Node[]) {
+	const TEXT_NODE_TYPE = 3;
+
+	function updateElementChildren(parent: HTMLElement, newChildren: (Node|string)[]) {
 
 		const parentIsMounted = document.body.contains(parent); // TODO: Is there a faster method?
 
@@ -477,26 +476,35 @@ namespace Nitro {
 		let indexIntoCurrentChildren = 0;
 		let indexIntoNewChildren = 0;
 
-		while (indexIntoNewChildren < children.length) {
+		while (indexIntoNewChildren < newChildren.length) {
 			const currentChild = currentChildren[indexIntoCurrentChildren];
-			const newChild = children[indexIntoNewChildren];
+			let newChild = newChildren[indexIntoNewChildren];
+			const newChildIsText = typeof newChild === 'string';
 			if (currentChild === undefined) {
-				parent.appendChild(newChild);
+				if (newChildIsText) newChild = document.createTextNode(newChild as string);
+				parent.appendChild(newChild as Node);
 				if (parentIsMounted && newChild instanceof Element) invokeWasMountedForElement(newChild);
 				indexIntoCurrentChildren++;
 				indexIntoNewChildren++;
 				continue;
 			}
-			if (currentChildren[indexIntoCurrentChildren] === newChild) {
+			let isEqual = false;
+			if (newChildIsText) {
+				isEqual = currentChild.nodeType === TEXT_NODE_TYPE && currentChild.textContent === newChild;
+			}
+			else {
+				isEqual = currentChild === newChild;
+			}
+			if (isEqual) {
 				indexIntoCurrentChildren++;
 				indexIntoNewChildren++;
 			}
 			else {
-				const oldChild = currentChildren[indexIntoCurrentChildren];
-				parent.replaceChild(newChild, oldChild);
+				if (newChildIsText) newChild = document.createTextNode(newChild as string);
+				parent.replaceChild(newChild as Node, currentChild);
 				if (parentIsMounted) {
-					if (oldChild instanceof Element && children.indexOf(oldChild) === -1) {
-						invokeWasUnmountedForElement(oldChild);
+					if (currentChild instanceof Element && newChildren.indexOf(currentChild) === -1) { // Invoke wasUnmounted() on the child iff it is not present in the newChildren array
+						invokeWasUnmountedForElement(currentChild);
 					}
 					if (newChild instanceof Element) invokeWasMountedForElement(newChild);
 				}
