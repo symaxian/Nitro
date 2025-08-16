@@ -521,7 +521,8 @@ namespace Nitro {
 			(element as CustomHTMLElement).__was_mounted();
 		}
 		const children = element.children;
-		for (let i = 0; i < children.length; i++) {
+		const childCount = children.length;
+		for (let i = 0; i < childCount; i++) {
 			invokeWasMountedForElement(children[i]);
 		}
 	}
@@ -531,7 +532,8 @@ namespace Nitro {
 			(element as CustomHTMLElement).__was_unmounted();
 		}
 		const children = element.children;
-		for (let i = 0; i < children.length; i++) {
+		const childCount = children.length;
+		for (let i = 0; i < childCount; i++) {
 			invokeWasUnmountedForElement(children[i]);
 		}
 	}
