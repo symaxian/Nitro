@@ -55,8 +55,7 @@ namespace Nitro {
 				window['queueMicrotask'](queueMicrotaskCallback);
 			}
 			_digestOnNextMicrotask = true; // Must set this to true whether a microtask is pending or not, in case Nitro.digest() was invoked while a microtask was still pending, then a component is dirtied.
-		}
-		else if (_pendingRaf === -1) {
+		} else if (_pendingRaf === -1) {
 			_pendingRaf = window.requestAnimationFrame(requestAnimationFrameCallback);
 		}
 	}
@@ -78,8 +77,7 @@ namespace Nitro {
 				component.getElement();
 			}
 			_dirtyComponents = [];
-		}
-		catch (e) {
+		} catch (e) {
 			console.error('Exception thrown during Nitro.digest().');
 			_dirtyComponents = [];
 			throw e;
@@ -165,14 +163,12 @@ namespace Nitro {
 			try {
 				if (renderer === null) {
 					rendered = this.render() as HTMLElement;
-				}
-				else {
+				} else {
 					renderer.setupForNewRenderPass();
 					rendered = this.render(renderer) as HTMLElement;
 					// renderer.clearLeftoverState();
 				}
-			}
-			catch(e) {
+			} catch (e) {
 				removeDirtyComponent(this);
 				throw e;
 			}
@@ -225,8 +221,7 @@ namespace Nitro {
 			let didChange = false;
 			if (previous === null) {
 				didChange = true;
-			}
-			else {
+			} else {
 				for (const key in input) {
 					if (previous[key] !== input[key]) {
 						didChange = true;
@@ -250,8 +245,7 @@ namespace Nitro {
 		if (lowerCaseName in element) name = lowerCaseName; // Use the lowercase name for event handlers
 		if (name.startsWith('data-')) {
 			element.removeAttribute(name);
-		}
-		else {
+		} else {
 			(element as any)[name] = (blankElement as any)[name];
 		}
 	}
@@ -269,11 +263,9 @@ namespace Nitro {
 			for (const styleKey in value as JSX.CSSProperties) {
 				element.style[styleKey as any] = value[styleKey];
 			}
-		}
-		else if (name.startsWith('data-')) {
+		} else if (name.startsWith('data-')) {
 			element.setAttribute(name, value);
-		}
-		else if (name !== 'children') {
+		} else if (name !== 'children') {
 			(element as any)[name] = value;
 		}
 	}
@@ -317,8 +309,7 @@ namespace Nitro {
 			if (children.length > 0) {
 				if (inputOrProperties === null) {
 					inputOrProperties = { children: children };
-				}
-				else {
+				} else {
 					inputOrProperties.children = children;
 				}
 			}
@@ -381,8 +372,7 @@ namespace Nitro {
 						let childElem;
 						if (typeof child === 'string' || child instanceof HTMLElement) {
 							childElem = child;
-						}
-						else {
+						} else {
 							if (Nitro.DEBUG_MODE && !(child instanceof Nitro.Component)) throw new Error('Cannot treat value as child: ' + child + '; must be one of: string, HTMLElement, Component, undefined, null, or false.');
 							childElem = child.getElement();
 						}
@@ -491,15 +481,13 @@ namespace Nitro {
 			let isEqual = false;
 			if (newChildIsText) {
 				isEqual = currentChild.nodeType === TEXT_NODE_TYPE && currentChild.textContent === newChild;
-			}
-			else {
+			} else {
 				isEqual = currentChild === newChild;
 			}
 			if (isEqual) {
 				indexIntoCurrentChildren++;
 				indexIntoNewChildren++;
-			}
-			else {
+			} else {
 				if (newChildIsText) newChild = document.createTextNode(newChild as string);
 				parent.replaceChild(newChild as Node, currentChild);
 				if (parentIsMounted) {
