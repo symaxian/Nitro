@@ -457,6 +457,8 @@ namespace Nitro {
 
 	const TEXT_NODE_TYPE = 3;
 
+	// This function essentially implements a very poor diff algorithm to update the children of an HTMLElement
+	// TODO: Need to replace this logic with an actual diff algorithm in order to perform the minimal set of mutations to the DOM
 	function updateElementChildren(parent: HTMLElement, newChildren: (Node|string)[]) {
 
 		const parentIsMounted = document.body.contains(parent); // TODO: Is there a faster method?
@@ -478,7 +480,7 @@ namespace Nitro {
 				indexIntoNewChildren++;
 				continue;
 			}
-			let isEqual = false;
+			let isEqual: boolean;
 			if (newChildIsText) {
 				isEqual = currentChild.nodeType === TEXT_NODE_TYPE && currentChild.textContent === newChild;
 			} else {
