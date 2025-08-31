@@ -20,6 +20,9 @@ tasks.create<Exec>("compileNitroTS") {
 	inputs.file("build.gradle.kts")
 	inputs.files("Nitro.ts")
 
+	outputs.file("out/Nitro.js")
+	outputs.file("out/Nitro.d.js")
+
 	commandLine("tsc")
 }
 
@@ -29,6 +32,7 @@ tasks.create<Exec>("compileNitroJS") {
 
 	inputs.file("build.gradle.kts")
 	inputs.file("out/Nitro.js")
+
 	outputs.file("out/Nitro.min.js")
 
 	val argList = ArrayList<String>()
@@ -58,8 +62,12 @@ tasks.create<Exec>("compileNitroJS") {
 }
 
 tasks.create<Exec>("compileUnitTests") {
+	dependsOn("compileNitroJS")
+
 	inputs.file("build.gradle.kts")
 	inputs.files("unit_tests")
+
+	outputs.file("out/NitroSpec.js")
 
 	workingDir("unit_tests")
 	commandLine("tsc")
