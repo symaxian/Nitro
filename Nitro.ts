@@ -158,22 +158,27 @@ namespace Nitro {
 		}
 
 		private rerender() {
-			let rendered: HTMLElement;
+			let rendered: HTMLElement | void;
 			const renderer = this._renderer;
 			try {
 				if (renderer === null) {
-					rendered = this.render() as HTMLElement;
+					rendered = this.render();
 				} else {
 					renderer.setupForNewRenderPass();
-					rendered = this.render(renderer) as HTMLElement;
+					rendered = this.render(renderer);
 					// renderer.clearLeftoverState();
 				}
 			} catch (e) {
 				removeDirtyComponent(this);
 				throw e;
 			}
-			if (Nitro.DEBUG_MODE && this.element === null && !(rendered instanceof HTMLElement)) {
-				throw new Error('Element for component ' + this.constructor.name + ' is not defined and render() did not return an instance of HTMLElement!');
+			if (Nitro.DEBUG_MODE) {
+				if (rendered instanceof Array) {
+					throw new Error(this.constructor.name + '.render() returned an array, Nitro does not support components evaluating to multiple elements!');
+				}
+				if (this.element === null && !(rendered instanceof HTMLElement)) {
+					throw new Error('Element for component ' + this.constructor.name + ' is not defined and render() did not return an instance of HTMLElement!');
+				}
 			}
 			if (rendered !== undefined) {
 				if (Nitro.DEBUG_MODE && this.element !== null && rendered !== this.element) {
@@ -181,7 +186,7 @@ namespace Nitro {
 					throw new Error('Nitro does not support swapping out the root element of a component! Component: ' + this.constructor.name + '. You may need to add a key to the root element of the component.');
 				}
 				if (this.element === null) {
-					this.element = rendered;
+					this.element = rendered as HTMLElement;
 				}
 			}
 			if ((this.element as CustomHTMLElement).__was_mounted === undefined) {
@@ -292,6 +297,8 @@ namespace Nitro {
 		(element as CustomHTMLElement).__attributes = attributes;
 	}
 
+	const FRAGMENT_TOKEN = {};
+
 	export class Renderer {
 
 		private components: Component[] = [];
@@ -300,9 +307,15 @@ namespace Nitro {
 		private elements: CustomHTMLElement[] = [];
 		private previousElements: CustomHTMLElement[] = [];
 
+		readonly fragment = FRAGMENT_TOKEN;
+
 		create(tagName: string, attributes: any, ...children: (string | HTMLElement | Nitro.Component | null | false)[]): HTMLElement;
 		create<C extends Component<P>, P extends {}>(componentClass: new () => Component<P>, input?: P | null): HTMLElement;
-		create(tagNameOrComponentClass: any, inputOrProperties: any, ...children: (string | HTMLElement | Nitro.Component | null | false)[]): HTMLElement {
+		create(tagNameOrComponentClass: any, inputOrProperties: any, ...children: (string | HTMLElement | Nitro.Component | null | false)[]): HTMLElement | HTMLElement[] {
+
+			if (tagNameOrComponentClass === FRAGMENT_TOKEN) {
+				return children as HTMLElement[];
+			}
 
 			const key = (inputOrProperties === null || inputOrProperties.key === undefined) ? null : inputOrProperties.key;
 

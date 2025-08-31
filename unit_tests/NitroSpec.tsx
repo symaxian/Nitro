@@ -929,4 +929,76 @@ describe('Nitro', () => {
 		expect(elem2.textContent).toBe('');
 	});
 
+	it('Can return a fragment from a conditional', () => {
+
+		class TestComponent extends Nitro.Component<boolean> {
+			render(_: Nitro.Renderer): void | HTMLElement {
+				return <div>
+					{ this.input ? <>
+						<span>Child 1</span>
+						<span>Child 2</span>
+					</> : null }
+				</div>;
+			}
+		}
+
+		const testComponent = new TestComponent();
+
+		testComponent.setInput(false);
+		const elem = testComponent.getElement();
+		expect(elem.tagName).toBe('DIV');
+		expect(elem.textContent).toBe('');
+
+		testComponent.setInput(true);
+		const elem2 = testComponent.getElement();
+		expect(elem2.tagName).toBe('DIV');
+		expect(elem2.textContent).toBe('Child 1Child 2');
+	});
+
+
+	it('Can build up table with conditional rows in fragments', () => {
+
+		class TestComponent extends Nitro.Component<boolean> {
+			render(_: Nitro.Renderer): void | HTMLElement {
+				return <table>
+					<tr><td>(TR1)</td></tr>
+					{ this.input ? <>
+						<tr><td>(TR2)</td></tr>
+						<tr><td>(TR3)</td></tr>
+					</> : null }
+					<tr><td>(TR4)</td></tr>
+				</table>;
+			}
+		}
+
+		const testComponent = new TestComponent();
+
+		testComponent.setInput(false);
+		const elem = testComponent.getElement();
+		expect(elem.tagName).toBe('TABLE');
+		expect(elem.textContent).toBe('(TR1)(TR4)');
+
+		testComponent.setInput(true);
+		const elem2 = testComponent.getElement();
+		expect(elem2.tagName).toBe('TABLE');
+		expect(elem2.textContent).toBe('(TR1)(TR2)(TR3)(TR4)');
+	});
+
+	it('Error is thrown when a component resolves to a fragment', () => {
+
+		class TestComponent extends Nitro.Component {
+			render(_: Nitro.Renderer): void | HTMLElement {
+				return <>
+					<span>Span 1</span>
+					<span>Span 2</span>
+				</>;
+			}
+		}
+
+		const testComponent = new TestComponent();
+		expect(() => {
+			testComponent.getElement();
+		}).toThrow(new Error('TestComponent.render() returned an array, Nitro does not support components evaluating to multiple elements!'));
+	});
+
 });

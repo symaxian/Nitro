@@ -151,6 +151,7 @@ Note: In order to use JSX/TSX, the JSX syntax must be compiled down to invocatio
 ```JSON
 "jsx": "react",
 "jsxFactory": "_.create",
+"jsxFragmentFactory": "_.fragment",
 ```
 
 

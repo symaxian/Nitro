@@ -9,6 +9,7 @@
 		"rootDir": ".",
 		"jsx": "react",
 		"jsxFactory": "_.create",
+		"jsxFragmentFactory": "_.fragment",
 		"inlineSourceMap": true,
 		"inlineSources": true,
 		"strict": true,
